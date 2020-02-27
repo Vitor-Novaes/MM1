@@ -10,7 +10,7 @@ class People
     @time_arrival = nil # Tempo de chegada no relógio
     @waiting_time = nil #Tempo de espera
     @total_time = nil # Total de tempo no banco
-    @created = Time.now # Tempo de chegada no banco
+    @created = Time.now.to_i # Tempo de chegada no banco
     @initial_service = nil # Tempo inicial do atendimento
     @end_service = nil # Tempo final do atendimento
   end

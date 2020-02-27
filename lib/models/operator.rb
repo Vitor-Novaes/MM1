@@ -1,42 +1,46 @@
 class Operator
-	attr_accessor :queue, :in_service, :time_in_hidle, :hidle
+  attr_accessor :queue, :in_service, :time_in_hidle, :hidle
+  attr_reader :start_service
 
 	def initialize
-    @start_service = Time.now
-    @hidle = Time.now
+    @start_service = Time.now.to_i
+    @hidle = Time.now.to_i
     @time_in_hidle = 0
     @in_service = false
     @queue = Queue.new
 	end
 
   def push_queue(people)
-    time_in_hidle += (Tim.now - hidle) if queue.empty? && !in_service
-    time_arrival = people.created - self.start_service
+    time_in_hidle = time_in_hidle.to_i + (Time.now.to_i - hidle) if queue.empty? && !in_service
+    time_arrival = (people.created - start_service)
     people.time_arrival = time_arrival
-    self.queue << people
-    initial_service() if answer_now?
+    puts "Time arrival client: #{people.time_arrival}"
+    queue << people
+    return initial_service() if answer_now?
+    puts "Client in waiting\n\n"
   end
   
   def answer_now?
-    return !in_service?
+    return !in_service
   end
 
   def initial_service
-    people = self.queue.pop
-    self.in_service = true
-    time = Time.now - people.time_arrival
-    people.waiting_time = Time.now - time
+    people = queue.pop
+    in_service = true
+    people.waiting_time = Time.now.to_i - people.created
     people.initial_service = people.time_arrival + people.waiting_time
-    people.end_service = people.initial_service + time_of_processing
+    puts "Start service: client #{people.number} -> #{people.initial_service}\n"
+    people.end_service = people.initial_service + people.time_of_processing
     people.total_time = people.end_service - people.time_arrival
     sleep(people.time_of_processing)
+    puts "End service: client #{people.number} -> #{people.end_service}\n\n"
     next_step()
   end
 
   def next_step
-    self.in_service = false
-    if self.queue.empty?
-      self.hidle = Time.now
+    in_service = false
+    if queue.empty?
+      hidle = Time.now.to_i
     else
       initial_service()
     end
