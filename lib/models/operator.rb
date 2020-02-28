@@ -1,17 +1,17 @@
 class Operator
-  attr_accessor :queue, :in_service, :time_in_hidle, :hidle
+  attr_accessor :queue, :in_service, :time_in_idle, :idle
   attr_reader :start_service
 
 	def initialize
     @start_service = Time.now.to_i
-    @hidle = Time.now.to_i
-    @time_in_hidle = 0
+    @idle = Time.now.to_i
+    @time_in_idle = 0
     @in_service = false
     @queue = Queue.new
 	end
 
   def push_queue(people)
-    time_in_hidle = time_in_hidle.to_i + (Time.now.to_i - hidle) if queue.empty? && !in_service
+    time_in_idle = time_in_idle.to_i + (Time.now.to_i - idle) if queue.empty? && !in_service
     time_arrival = (people.created - start_service)
     people.time_arrival = time_arrival
     puts "Time arrival client: #{people.time_arrival}"
@@ -40,7 +40,7 @@ class Operator
   def next_step
     in_service = false
     if queue.empty?
-      hidle = Time.now.to_i
+      idle = Time.now.to_i
     else
       initial_service()
     end
