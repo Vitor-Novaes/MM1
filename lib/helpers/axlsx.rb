@@ -1,3 +1,5 @@
+
+# Generate xlsx output times
 require 'axlsx'
 
 def generate_xls(clients, operator)
@@ -14,14 +16,13 @@ def generate_xls(clients, operator)
         sheet.add_row [
           "Ordem",
           "Tempo entre chegadas",
-          "Chegada",
+          "Chegada no relógio",
           "Tempo de atendimento",
-          "Inicío do atendimento",
+          "Inicío do atendimento no relógio",
           "Tempo de espera",
-          "Fim do atendimento",
+          "Fim do atendimento no relógio",
           "Tempo total no banco",
-          "Tempo do Operador Ocioso",
-        ], style: [cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header]
+        ], style: [cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header]
         clients.each do |label|
           sheet.add_row [
             label.number,
@@ -32,9 +33,10 @@ def generate_xls(clients, operator)
             label.waiting_time,
             label.end_service,
             label.total_time,
-            label.time_operator_idle
-          ], style: [cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body]
+          ], style: [cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body]
         end
+        sheet.add_row ['Soma: ', "=SUM(B2:B11)", '-', "=SUM(D2:D11)", "-", "=SUM(F2:F11)", "-", "=SUM(H2:H11)"], escape_formulas: true 
+        sheet.add_row ['Média: ', "=AVERAGE(B2:B11)", '-', "=AVERAGE(D2:D11)", "-", "=AVERAGE(F2:F11)", "-", "=AVERAGE(H2:H11)" ], escape_formulas: true
       end
     end
     

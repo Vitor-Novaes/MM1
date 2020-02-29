@@ -14,10 +14,8 @@ class Operator
     time_arrival = (people.created - start_service) #ok
     people.time_arrival = time_arrival # ok
     if answer_now?()
-      idle_operator_register(people)
       in_processing(people, semaphore)
     else
-      puts "\nClient #{client.number} is waiting\n"
       queue << people
     end
   end
@@ -36,10 +34,9 @@ class Operator
 
   def in_processing(people, semaphore)
     semaphore.synchronize do 
+      idle_operator_register(people)
       busy = true
       people.waiting_time = Time.now.to_i - people.created.to_i
-      puts people.waiting_time
-      puts people.created
       people.initial_service = people.time_arrival + people.waiting_time
       people.end_service = people.initial_service + people.time_of_processing
       people.total_time = people.end_service - people.time_arrival
@@ -49,16 +46,16 @@ class Operator
       sleep(people.time_of_processing)
       puts "End service: client #{people.number} -> #{people.end_service}\n\n"
       busy = false
+      idle = Time.now.to_i
       return 1
     end
     next_step(semaphore)
   end
 
   def next_step(semaphore)
-    if answer_now?
+    if answer_now?      
       idle = Time.now.to_i
     else
-      puts 'for next than is waiting'
       people_in = pop_queue()
       in_processing(people_in, semaphore)
     end
