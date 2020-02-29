@@ -18,30 +18,47 @@ require 'thread'
 # Global variables
 $THREADS = []
 $CLIENTS = []
+$TEMP = []
 $ORDER = 0
+$BREAK = false
+$TIME = 0
 $OPERATOR = Operator.new
 
-def execute(last_time_arrival)
+def arrival_clients(last_time_arrival)
 	time_of_processing = sort_time_of_processing()
-	people_in = People.new($ORDER, last_time_arrival, time_of_processing)
 	puts "* Arrival new client #{$ORDER} (service: #{time_of_processing})\n"
-	$CLIENTS << people_in
-	$OPERATOR.push_queue(people_in)
+	People.new($ORDER, last_time_arrival, time_of_processing)
 end
 
 system('clear')
 puts "---- Operator bank ---- \n"
 puts "Time now: #{Time.now} -> #{Time.now.to_i} Initial service\n\n"
 
-3.times.map {
-	last_time_arrival = sort_last_time_arrival()
-	puts "(i): Next client in #{last_time_arrival}\n"
-  sleep(last_time_arrival)
-  $ORDER += 1
-	$THREADS << Thread.new { 
-    execute(last_time_arrival) 
-	}
-}
+$THREADS << Thread.new do
+  3.times do
+    puts 'Executeed'
+    last_time_arrival = sort_last_time_arrival()
+    puts "(i): Next client in #{last_time_arrival}\n"
+    sleep(last_time_arrival)
+    $ORDER += 1
+    $CLIENTS << arrival_clients(last_time_arrival)
+    $TEMP << $CLIENTS.last
+  end
+  $CLIENTS.each { |c| $TIME += c.time_of_processing.to_i }
+  sleep($TIME)
+  $BREAK = true;
+end
+
+$THREADS << Thread.new do  
+  loop do
+    sleep(1)
+    if !$TEMP.empty?
+      temp = $TEMP.pop
+      $OPERATOR.push_queue(temp)
+    end
+    break if $BREAK
+  end
+end
 
 $THREADS.each(&:join)
 resume_output($CLIENTS, $OPERATOR)

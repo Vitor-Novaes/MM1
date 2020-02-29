@@ -7,7 +7,7 @@ class Operator
     @idle = Time.now.to_i
     @time_in_service = 0
     @queue = Queue.new
-    @busy = nil
+    @busy = false
 	end
 
   def push_queue(people)
@@ -33,7 +33,7 @@ class Operator
     queue.pop
   end
 
-  def in_processing(people)    
+  def in_processing(people)   
     busy = true
     people.waiting_time = Time.now.to_i - people.created.to_i
     puts people.waiting_time
@@ -47,6 +47,7 @@ class Operator
     sleep(people.time_of_processing)
     puts "End service: client #{people.number} -> #{people.end_service}\n\n"
     busy = false
+    $LAST_PROCESS = people.number
     next_step()
   end
 
