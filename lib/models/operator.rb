@@ -7,16 +7,17 @@ class Operator
     @idle = Time.now.to_i
     @time_in_service = 0
     @queue = Queue.new
-    @busy = nil
+    @busy = false
 	end
 
-  def push_queue(people)
-    time_arrival = (people.created - start_service)
-    people.time_arrival = time_arrival
+  def push_queue(people, semaphore)
+    time_arrival = (people.created - start_service) #ok
+    people.time_arrival = time_arrival # ok
     if answer_now?()
       idle_operator_register(people)
-      in_processing(people)
+      in_processing(people, semaphore)
     else
+      puts "\nClient #{client.number} is waiting\n"
       queue << people
     end
   end
@@ -33,30 +34,33 @@ class Operator
     queue.pop
   end
 
-  def in_processing(people)    
-    busy = true
-    people.waiting_time = Time.now.to_i - people.created.to_i
-    puts people.waiting_time
-    puts people.created
-    people.initial_service = people.time_arrival + people.waiting_time
-    people.end_service = people.initial_service + people.time_of_processing
-    people.total_time = people.end_service - people.time_arrival
-    time_in_service = time_in_service.to_i + people.time_of_processing.to_i
-
-    puts "Start service: client #{people.number} -> #{people.initial_service}\n"
-    sleep(people.time_of_processing)
-    puts "End service: client #{people.number} -> #{people.end_service}\n\n"
-    busy = false
-    next_step()
+  def in_processing(people, semaphore)
+    semaphore.synchronize do 
+      busy = true
+      people.waiting_time = Time.now.to_i - people.created.to_i
+      puts people.waiting_time
+      puts people.created
+      people.initial_service = people.time_arrival + people.waiting_time
+      people.end_service = people.initial_service + people.time_of_processing
+      people.total_time = people.end_service - people.time_arrival
+      time_in_service = time_in_service.to_i + people.time_of_processing.to_i
+  
+      puts "Start service: client #{people.number} -> #{people.initial_service}\n"
+      sleep(people.time_of_processing)
+      puts "End service: client #{people.number} -> #{people.end_service}\n\n"
+      busy = false
+      return 1
+    end
+    next_step(semaphore)
   end
 
-  def next_step
+  def next_step(semaphore)
     if answer_now?
       idle = Time.now.to_i
     else
       puts 'for next than is waiting'
       people_in = pop_queue()
-      in_processing(people_in)
+      in_processing(people_in, semaphore)
     end
   end
 end

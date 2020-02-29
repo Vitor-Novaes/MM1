@@ -14,6 +14,7 @@ require File.expand_path 'lib/helpers/axlsx'
 require File.expand_path 'lib/helpers/resume_output'
 
 require 'thread'
+$SEMAPHORE = Mutex.new
 
 # Global variables
 $THREADS = []
@@ -26,20 +27,20 @@ def execute(last_time_arrival)
 	people_in = People.new($ORDER, last_time_arrival, time_of_processing)
 	puts "* Arrival new client #{$ORDER} (service: #{time_of_processing})\n"
 	$CLIENTS << people_in
-	$OPERATOR.push_queue(people_in)
+	$OPERATOR.push_queue(people_in, $SEMAPHORE)
 end
 
 system('clear')
 puts "---- Operator bank ---- \n"
 puts "Time now: #{Time.now} -> #{Time.now.to_i} Initial service\n\n"
 
-3.times.map {
+20.times.map {
 	last_time_arrival = sort_last_time_arrival()
 	puts "(i): Next client in #{last_time_arrival}\n"
-  sleep(last_time_arrival)
-  $ORDER += 1
+  	sleep(last_time_arrival)
+  	$ORDER += 1
 	$THREADS << Thread.new { 
-    execute(last_time_arrival) 
+    	execute(last_time_arrival)
 	}
 }
 
