@@ -20,7 +20,8 @@ def generate_xls(clients, operator)
           "Tempo de espera",
           "Fim do atendimento",
           "Tempo total no banco",
-        ], style: [cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header]
+          "Tempo do Operador Ocioso",
+        ], style: [cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header, cell_header]
         clients.each do |label|
           sheet.add_row [
             label.number,
@@ -31,7 +32,8 @@ def generate_xls(clients, operator)
             label.waiting_time,
             label.end_service,
             label.total_time,
-          ], style: [cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body]
+            label.time_operator_idle
+          ], style: [cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body, cell_body]
         end
       end
     end

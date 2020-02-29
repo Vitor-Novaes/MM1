@@ -1,7 +1,7 @@
 
 class People
   attr_reader :number, :last_time_arrival, :time_of_processing, :created
-  attr_accessor :time_arrival, :total_time, :initial_service, :end_service, :waiting_time
+  attr_accessor :time_arrival, :total_time, :initial_service, :end_service, :waiting_time, :time_operator_idle
 
   def initialize number, last_time_arrival, time_of_processing
     @number = number
@@ -13,5 +13,6 @@ class People
     @created = Time.now.to_i # Tempo de chegada no banco
     @initial_service = nil # Tempo inicial do atendimento
     @end_service = nil # Tempo final do atendimento
+    @time_operator_idle = 0
   end
 end
